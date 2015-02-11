@@ -1,3 +1,5 @@
+( Author: Joshua Eckroth <jeckroth@stetson.edu> )
+
 : even? 2 mod 0 = ;
 : nextfib 2dup + ;
 : origevenfibsum 0 1 1 ( last sum fib1 fib2 ) 3 roll begin ( sum fib1 fib2 last ) rot rot nextfib ( sum last fib1 fib2 fib3 ) rot drop ( sum last fib2 fib3 ) 3 roll over ( last fib2 fib3 sum fib3 ) dup even? if + else drop then ( last fib2 fib3 sum ) rot rot 3 roll ( sum fib2 fib3 last ) 2dup > until ( sum fib2 fib3 last ) drop drop drop ;
