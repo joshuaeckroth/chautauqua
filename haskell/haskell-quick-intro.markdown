@@ -1,57 +1,14 @@
 # Haskell quick introduction
 
-## Key points
+Haskell is a programming language where variables never vary. Once you set a variable, its value cannot be altered.
 
-### Every valid expression is a value
+Nearly every other design decision is influenced by that limitation. This tutorial explores the consequences.
 
-Values are values (e.g., `5`). Variables are values. Variables do not *hold* values; they *are* values (but with names). Functions are values. **Programs are values.**
+## Setup
 
-Here are some values.
+Download and install [GHC](https://www.haskell.org/ghc/download_ghc_7_8_4). Run `ghci` in a terminal. Type Haskell definitions in a source file and load in ghci with `:load filename.hs`5
 
-```haskell
-x = 5
-
-q = let y = x + 10
-    in y + 3
-
-r = z * x + w
-    where w = 4
-          z = 3
-
-f c = c*c
-
-main = do putStrLn (show (f 3))
-          putStrLn (show r)
-```
-
-Run `ghci` on the file [haskell-quick-intro.hs](/code/haskell-quick-intro.hs) and type `x`, `q`, and `r` to show the various computed values:
-
-```
-$ ghci haskell-quick-intro.lhs
-GHCi, version 7.8.3: http://www.haskell.org/ghc/  :? for help
-Loading package ghc-prim ... linking ... done.
-Loading package integer-gmp ... linking ... done.
-Loading package base ... linking ... done.
-[1 of 1] Compiling Main             ( haskell-quick-intro.lhs, interpreted )
-Ok, modules loaded: Main.
-*Main> x
-5
-*Main> q
-18
-*Main> r
-19
-*Main> main
-hello
-9
-19
-*Main> t
-hello
-9
-19
-*Main>
-```
-
-### Variables never vary; they are "bound"
+## Variables never vary; they are "bound"
 
 ```haskell
 x2 = 55
@@ -71,88 +28,56 @@ haskell-quick-intro.hs:22:1:
 Failed, modules loaded: none.
 ```
 
-### Every value has a specific type
+## Every valid expression is a value
 
-Let's ask `ghci` about the types of the variables we bound:
+Values are values (e.g., `55`). Variables are values. Variables do not *hold* values; they *are* values (but with names). Functions are values. **Programs are values.**
+
+Here are (named) some values.
+
+```haskell
+x = 5
+
+q = let y = x + 10
+    in y + 3
+
+r = z * x + w
+    where w = 4
+          z = 3
+
+f c = c*c
+
+main = do putStrLn (show (f 3))
+          putStrLn (show r)
+```
+
+Reload the file and type `x`, `q`, `r`, `f`, and `main` to show the various computed values:
 
 ```
-*Main> :t q
-q :: Integer
-*Main> :t x
-x :: Integer
-*Main> :t q
-q :: Integer
-*Main> :t r
-r :: Integer
-*Main> :t f
-f :: Num a => a -> a
-*Main> :t main
-main :: IO ()
-*Main> :t t
-t :: IO ()
+*Main> :reload
+[1 of 1] Compiling Main             ( test.hs, interpreted )
+Ok, modules loaded: Main.
+*Main> x
+5
+*Main> q
+18
+*Main> r
+19
+*Main> f
+
+<interactive>:9:1:
+    No instance for (Show (a0 -> a0)) arising from a use of ‘print’
+    In a stmt of an interactive GHCi command: print it
+*Main> f 10
+100
+*Main> main
+9
+19
 *Main>
 ```
 
-### Types are inferred
+Notice `f` could not be printed. That's because it is still a function, which is a value but which has no printable form. Applying `f` to the number `10` turned into a simple, printable value.
 
-We didn't define the type of the function `f`. It inferred it had to be `a -> a` where `a` is one of the number types. Why? Because we used `*`, which has the type:
-
-```
-*Main> :type (*)
-(*) :: Num a => a -> a -> a
-*Main>
-```
-
-In other words, it takes two values of type `a` (i.e., any type, so long as it has parent type `Num`) and gives back a value of the same type.
-
-### Functions are just partially-realized values
-
-Functions have types like `Int -> Int` or `a -> b -> a` (for some types `a` and `b`). Any lower-case type, such as `a`, means "any type can go here." Of course, when the function is actually executed, if `a` matches up to type `X`, all `a` type values in the function must be type `X` for that function call.
-
-Give a function one of its several arguments, and it just becomes a "slightly more realized" value. I.e., that argument is replaced with its value everywhere it appears in the function, but the function still is not fully realized. Normal variables, like `x` above (first example), are simply fully-realized values.
-
-Example of a function:
-
-```haskell
-average_three_values x y z = (x + y + z) / 3.0
-```
-
-Let's interrogate the types and values:
-
-```
-*Main> :t average_three_values
-average_three_values :: Fractional a => a -> a -> a -> a
-*Main> :t (average_three_values 8.0)
-(average_three_values 8.0) :: Fractional a => a -> a -> a
-*Main> :t (average_three_values 8.0 9.0)
-(average_three_values 8.0 9.0) :: Fractional a => a -> a
-*Main> :t (average_three_values 8.0 9.0 10.0)
-(average_three_values 8.0 9.0 10.0) :: Fractional a => a
-*Main> let avg2 = (average_three_values 8.0)
-*Main> let avg3 = (avg2 9.0)
-*Main> let avg4 = (avg3 10.0)
-*Main> avg4
-9.0
-```
-
-This method of partial application is called *currying* (after the mathematician Haskell Curry).
-
-### Values are computed lazily (as-needed)
-
-When compiling a binary, execution starts in `main`. Whatever value `main` computes, and whatever values that computation depends on, are the only values computed.
-
-So, in this code, `y` is never computed:
-
-```haskell
-main = let x = 5
-           y = x * x
-       in do putStrLn "hello"
-             putStrLn x
-```
-
-This means you can actually use infinite lists, for example, and never have a problem (unless you try to process the whole list...).
-
-### Side-effects are not allowed
+## Side-effects are not possible
 
 **There are only values.** In the code `x + y`, for example, there is no "room" for some random "print" statement or whatever. It would look like `x + (putStr "foo") + y`, which doesn't make sense because `putStr` is not a numeric type (so it can't be added).
 
@@ -174,7 +99,7 @@ This example does not compile because `putStr` has type (and value) `IO ()` (i.e
 
 Generally, you can't put a "print" statement, or anything else with side-effects, in a position where it does not contribute to a computation. You can only do side-effects when using the IO trick (next section).
 
-### IO is a trick
+## IO is a trick
 
 Since Haskell disallows side-effects, as described previously, there has to be some fancy trick to enable a program to read input from the outside world and send output to the screen or elsewhere. This trick is with a "monad."
 
@@ -210,9 +135,26 @@ We're done.
 *Main>
 ```
 
+## Values are computed lazily (as-needed)
+
+Since side effects are not possible, there is no reason to execute a function or otherwise evaluation an expression if the value is never used. So expressions are evaluated "lazily," i.e., only when needed.
+
+When compiling a binary, execution starts in `main`. Whatever value `main` computes, and whatever values that computation depends on, are the only values computed.
+
+So, in this code, `y` is never computed:
+
+```haskell
+main = let x = 5
+           y = x * x
+       in do putStrLn "hello"
+             putStrLn x
+```
+
+This means you can actually use infinite or cyclic data structures, for example, and never have a problem (unless you try to process the whole thing...).
+
 ## "Functional programming" is programming with data
 
-In functional programming, every operation transforms or generates data. There are no operations (except the IO trick) that simply perform actions for the sake of producing side effects (e.g., modifying memory, launching missles, inserting into or querying databases, etc.).
+In functional programming, every operation transforms or generates data. There are no operations (except the IO trick) that simply perform actions for the sake of producing side effects (e.g., modifying memory, launching missiles, inserting into or querying databases, etc.).
 
 [Of course, with the IO trick, we really can produce side-effects and launch missiles, or whatever. But the program is still "pure" because it acts as if these side-effects are actually just "values" that will be the same every time the program runs.]
 
@@ -225,6 +167,85 @@ In functional programming, every operation transforms or generates data. There a
 - There are no pointers and no mutable arrays. All function calling is call-by-value; a function always receives a copy of each of its arguments.
 
 **Except for (minimal) IO code, functional programs play with data. Functional programs are not composed of "statements" but rather they are composed of data manipulations. Every output of a function is the input to another function.**
+
+## Other design choices
+
+### Every value has a specific type
+
+Haskell is a strictly- and strongly-typed language. This design choice is not strictly a result of the "variables do not vary" limitation, but it has interesting consequences as well.
+
+Let's ask `ghci` about the types of the variables we bound:
+
+```
+*Main> :t q
+q :: Integer
+*Main> :t x
+x :: Integer
+*Main> :t q
+q :: Integer
+*Main> :t r
+r :: Integer
+*Main> :t f
+f :: Num a => a -> a
+*Main> :t main
+main :: IO ()
+*Main> :t t
+t :: IO ()
+*Main>
+```
+
+### Types are inferred
+
+We didn't define the type of the function `f`. It inferred it had to be `a -> a` where `a` is one of the number types. Why? Because we used `*`, which has the type:
+
+```
+*Main> :type (*)
+(*) :: Num a => a -> a -> a
+*Main>
+```
+
+In other words, it takes two values of type `a` (i.e., any type, so long as it has parent type `Num`) and gives back a value of the same type.
+
+### Types are so powerful, there is a search engine for them
+
+The [Hoogle](https://www.haskell.org/hoogle/) search engine allows you to find functions that have specific types. Need a function that transforms a list of some type and gives back a list of the same type? Try this query: `[a] -> [a]`.
+
+Results:
+
+![Hoogle](hoogle.png)
+
+### Functions are just partially-realized values
+
+Functions have types like `Int -> Int` or `a -> b -> a` (for some types `a` and `b`). Any lower-case type, such as `a`, means "any type can go here." Of course, when the function is actually executed, if `a` matches up to type `X`, all `a` type values in the function must be type `X` for that function call.
+
+Give a function one of its several arguments, and it just becomes a "slightly more realized" value. I.e., that argument is replaced with its value everywhere it appears in the function, but the function still is not fully realized. Normal variables, like `x` above (first example), are simply fully-realized values.
+
+Example of a function:
+
+```haskell
+average_three_values x y z = (x + y + z) / 3.0
+```
+
+Let's interrogate the types and values:
+
+```
+*Main> :t average_three_values
+average_three_values :: Fractional a => a -> a -> a -> a
+*Main> :t (average_three_values 8.0)
+(average_three_values 8.0) :: Fractional a => a -> a -> a
+*Main> :t (average_three_values 8.0 9.0)
+(average_three_values 8.0 9.0) :: Fractional a => a -> a
+*Main> :t (average_three_values 8.0 9.0 10.0)
+(average_three_values 8.0 9.0 10.0) :: Fractional a => a
+*Main> let avg2 = (average_three_values 8.0)
+*Main> let avg3 = (avg2 9.0)
+*Main> let avg4 = (avg3 10.0)
+*Main> avg4
+9.0
+```
+
+This method of partial application is called *currying* (after the mathematician Haskell Curry).
+
 
 ## Lists are a crucial data structure
 
@@ -319,6 +340,8 @@ It's often very convenient to generate a new list simply by describing what it w
 
 - `splitAt`: split a list into two at a certain position
 
+- `zipWith'`: apply a binary function (2 inputs, 1 output) to each element pair from two lists
+
 Many more list functions are available in the [Prelude](http://hackage.haskell.org/package/base-4.7.0.1/docs/Prelude.html#g:11), i.e., Haskell's standard library.
 
 ## Examples
@@ -326,10 +349,29 @@ Many more list functions are available in the [Prelude](http://hackage.haskell.o
 ### Quicksort
 
 ```haskell
+quicksort :: (Ord a) => [a] -> [a]
+quicksort [] = []
+quicksort (x:xs) =
+    let smallerSorted = quicksort (filter (<=x) xs)
+        biggerSorted = quicksort (filter (>x) xs)
+    in  smallerSorted ++ [x] ++ biggerSorted
+```
+
+Or, using list comprehensions,
+
+```haskell
 quickSort []     = []
 quickSort (x:xs) = quickSort [a | a <- xs, a < x]   -- Sort the left part of the list
                    ++ [x] ++                        -- Insert pivot between two sorted parts
                    quickSort [a | a <- xs, a >= x]  -- Sort the right part of the list
+```
+
+Project Euler #2:
+
+```haskell
+problem_2 = sum [ x | x <- takeWhile (<= 1000000) fibs, even x]
+  where
+    fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
 ```
 
 ## Useful libraries
