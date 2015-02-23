@@ -8,7 +8,7 @@ Values are values (e.g., `5`). Variables are values. Variables do not *hold* val
 
 Here are some values.
 
-{% highlight haskell %}
+```haskell
 x = 5
 
 q = let y = x + 10
@@ -22,7 +22,7 @@ f c = c*c
 
 main = do putStrLn (show (f 3))
           putStrLn (show r)
-{% endhighlight %}
+```
 
 Run `ghci` on the file [haskell-quick-intro.hs](/code/haskell-quick-intro.hs) and type `x`, `q`, and `r` to show the various computed values:
 
@@ -53,10 +53,10 @@ hello
 
 ### Variables never vary; they are "bound"
 
-{% highlight haskell %}
+```haskell
 x2 = 55
 x2 = 75 -- not gonna work
-{% endhighlight %}
+```
 
 We can see it's not gonna work by reloading the file in `ghci`:
 
@@ -113,9 +113,9 @@ Give a function one of its several arguments, and it just becomes a "slightly mo
 
 Example of a function:
 
-{% highlight haskell %}
+```haskell
 average_three_values x y z = (x + y + z) / 3.0
-{% endhighlight %}
+```
 
 Let's interrogate the types and values:
 
@@ -143,12 +143,12 @@ When compiling a binary, execution starts in `main`. Whatever value `main` compu
 
 So, in this code, `y` is never computed:
 
-{% highlight haskell %}
+```haskell
 main = let x = 5
            y = x * x
        in do putStrLn "hello"
              putStrLn x
-{% endhighlight %}
+```
 
 This means you can actually use infinite lists, for example, and never have a problem (unless you try to process the whole list...).
 
@@ -158,17 +158,17 @@ This means you can actually use infinite lists, for example, and never have a pr
 
 Due to laziness (see previous point), even this never prints anything (if it were even valid code, and it's not for another reason, see below):
 
-{% highlight haskell %}
+```haskell
 f x = let y = putStr "foo"
       in (2+x*x)
-{% endhighlight %}
+```
 
 That's because `y` is never needed, so its value is never computed. Likewise, this does not work:
 
-{% highlight haskell %}
+```haskell
 f x = putStr "foo"
       (2+x*x)
-{% endhighlight %}
+```
 
 This example does not compile because `putStr` has type (and value) `IO ()` (i.e., void), which does not contribute to any arithmetic computation; it cannot feed into the next value `(2+x*x)` because (1) `(2+x*x)` is not a function and (2) if we put a function there, it has to be of special type `IO () -> IO a`, i.e., it has to accept a void input. Such functions do exist, but they have to be used in a special way; see the next section.
 
@@ -182,8 +182,7 @@ The basic idea is that the `main` function, where everything begins, is given th
 
 Example:
 
-{% highlight haskell %}
-
+```haskell
 main = do putStr "Type your name: "
           name <- getLine
           putStr "Your name is: "
@@ -195,7 +194,7 @@ main = do putStr "Type your name: "
             in do putStr "New number: "
                   putStrLn (show num2)
           putStrLn "We're done."
-{% endhighlight %}
+```
 
 It's hidden from us (due to the special `do` syntax), but the `IO` object is being passed across `putStr`, `putStrLn`, and `getLine`. The `let` only sets up bindings, it's not part of the chain.
 
@@ -240,16 +239,16 @@ Often, we have lots of data. Often, these data are collected into lists. Not sur
 
 You can also pull apart the head and tail when binding:
 
-{% highlight haskell %}
+```haskell
 let (x:xs) = [1, 2, 3, 4, 5]
 in ...
-{% endhighlight %}
+```
 
 In that code, `x` is `1`, `xs` is `[2, 3, 4, 5]`.
 
 Examples of `map`, `filter`, and `foldr`:
 
-{% highlight haskell %}
+```haskell
 xs = [1, 3, 5, 2, 6, 2, 5, 8]
 
 my_mapping_fn n = 2*n
@@ -265,7 +264,7 @@ my_foldr_fn m n = (m * n + 5)
 -- foldr needs three arguments: the folding fn, an initial value (for
 -- the first folding fn call), and the list
 xs4 = foldr my_foldr_fn 10 xs
-{% endhighlight %}
+```
 
 Here are their values:
 
@@ -326,12 +325,12 @@ Many more list functions are available in the [Prelude](http://hackage.haskell.o
 
 ### Quicksort
 
-{% highlight haskell %}
+```haskell
 quickSort []     = []
 quickSort (x:xs) = quickSort [a | a <- xs, a < x]   -- Sort the left part of the list
                    ++ [x] ++                        -- Insert pivot between two sorted parts
                    quickSort [a | a <- xs, a >= x]  -- Sort the right part of the list
-{% endhighlight %}
+```
 
 ## Useful libraries
 
