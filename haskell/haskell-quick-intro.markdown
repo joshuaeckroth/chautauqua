@@ -6,7 +6,7 @@ Nearly every other design decision is influenced by that limitation. This tutori
 
 ## Setup
 
-Download and install [GHC](https://www.haskell.org/ghc/download_ghc_7_8_4). Run `ghci` in a terminal. Type Haskell definitions in a source file and load in ghci with `:load filename.hs`5
+Download and install [GHC](https://www.haskell.org/ghc/download_ghc_7_8_4). Run `ghci` in a terminal. Type Haskell definitions in a source file and load in ghci with `:load filename.hs`
 
 ## Variables never vary; they are "bound"
 
